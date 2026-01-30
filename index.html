@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Neon Nebula - School Project</title>
+    <style>
+        :root {
+            --primary: #00f2ff;
+            --secondary: #7000ff;
+            --danger: #ff3131;
+            --success: #39ff14;
+            --dark: #05050a;
+            --glass: rgba(255, 255, 255, 0.15);
+        }
+
+        /* 7. Animations & Transitions */
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes pulse { 0% { scale: 1; } 50% { scale: 1.05; } 100% { scale: 1; } }
+        
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--dark);
+            color: white;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        nav {
+            width: 100%;
+            background: var(--glass);
+            padding: 10px 0;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid var(--primary);
+            transition: all 0.3s ease;
+        }
+
+        nav button {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 6px;
+            font-size: 0.85em;
+            transition: 0.2s;
+        }
+
+        nav button:active { transform: scale(0.9); background: var(--primary); color: #000; }
+
+        .page {
+            display: none;
+            width: 95%;
+            max-width: 500px;
+            margin-top: 20px;
+            text-align: center;
+            animation: slideUp 0.5s ease-out;
+        }
+        .active { display: block; }
+
+        .card {
+            background: #111122;
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid #333;
+            margin-bottom: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        input {
+            width: 85%;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 8px;
+            border: 1px solid #444;
+            background: #000;
+            color: white;
+        }
+
+        .btn-main {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            border: none;
+            color: white;
+            padding: 12px 20px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 8px;
+            margin: 5px;
+            transition: 0.3s;
+        }
+        .btn-main:hover { filter: brightness(1.2); }
+        .btn-main:active { transform: scale(0.95); }
+
+        /* Game UI */
+        #gameWrapper { position: relative; width: 320px; height: 400px; margin: 10px auto; }
+        canvas { background: #000; border: 3px solid #222; border-radius: 10px; box-shadow: 0 0 20px rgba(0,242,255,0.2); }
+
+        .ingame-powerups {
+            position: absolute;
+            bottom: 15px;
+            left: 15px;
+            display: flex;
+            gap: 12px;
+        }
+        .p-btn {
+            width: 50px;
+            height: 50px;
+            background: rgba(0,0,0,0.8);
+            border: 2px solid var(--primary);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
+        }
+        .p-btn small { font-size: 10px; color: var(--success); }
+
+        .controls { display: grid; grid-template-columns: repeat(3, 65px); gap: 10px; justify-content: center; margin-top: 10px; }
+        .ctrl-btn { width: 65px; height: 65px; background: var(--glass); border: 2px solid var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; user-select: none; }
+        
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; border-bottom: 1px solid #222; text-align: center; }
+        th { color: var(--primary); }
+    </style>
+</head>
+<body>
+
+<nav id="navbar" style="display: none;">
+    <button onclick="showPage('homePage')">Home</button>
+    <button onclick="showPage('gamePage')">Play</button>
+    <button onclick="showPage('leaderboardPage')">Rankings</button>
+    <button onclick="showPage('powerupPage')">🔋 Powerups</button>
+    <button onclick="showPage('accountPage')">Account Details</button>
+</nav>
+
+<div id="authPage" class="page active">
+    <h1>NEON NEBULA</h1>
+    <div class="card">
+        <h2 id="authTitle">Login</h2>
+        <input type="text" id="username" placeholder="Username">
+        <input type="number" id="userAge" placeholder="Your Age" style="display:none;">
+        <input type="password" id="password" placeholder="Password">
+        <button class="btn-main" onclick="handleAuth()" id="authBtn">Launch Game</button>
+        <p onclick="toggleAuthMode()" id="toggleLink" style="color: var(--primary); cursor:pointer; text-decoration: underline;">New Pilot? Register</p>
+    </div>
+</div>
+
+<div id="homePage" class="page">
+    <div class="card">
+        <h2>Welcome, Pilot</h2>
+        <p>Race through the nebula. Collect Green Orbs for points. Avoid Red Asteroids.</p>
+        <div style="text-align: left; padding: 10px;">
+            <li><b>Solo:</b> Survive as long as possible.</li>
+            <li><b>VS AI:</b> First to 10 points wins.</li>
+            <li><b>Points:</b> Used to buy & upgrade Powerups.</li>
+        </div>
+        <button class="btn-main" onclick="showPage('gamePage')">Go to Hangar</button>
+    </div>
+</div>
+
+<div id="gamePage" class="page">
+    <div id="gameMenu">
+        <h3>Wallet: <span class="total-pts" style="color:var(--success)">0</span></h3>
+        <h4>Solo Mode Difficulty</h4>
+        <button class="btn-main" onclick="setupGame('solo', 'easy')">Solo Easy</button>
+        <button class="btn-main" onclick="setupGame('solo', 'medium')">Solo Medium</button>
+        <button class="btn-main" onclick="setupGame('solo', 'hard')">Solo Hard</button>
+        <hr style="border:0.1px solid #333; margin: 15px;">
+        <h4>VS Computer (Balanced)</h4>
+        <button class="btn-main" onclick="setupGame('vs', 'easy')">AI Easy</button>
+        <button class="btn-main" onclick="setupGame('vs', 'medium')">AI Medium</button>
+        <button class="btn-main" onclick="setupGame('vs', 'hard')">AI Hard</button>
+    </div>
+
+    <div id="gamePlayArea" style="display:none;">
+        <div style="display:flex; justify-content: space-around; font-weight: bold; color: var(--primary); margin-bottom: 5px;">
+            <span>YOU: <span id="pScore">0</span></span>
+            <span id="aiContainer">AI: <span id="cScore">0</span></span>
+        </div>
+        <div id="gameWrapper">
+            <canvas id="gameCanvas" width="320" height="400"></canvas>
+            <div class="ingame-powerups">
+                <div class="p-btn" onclick="activatePower('shield')">🛡️<small id="sCount">0</small></div>
+                <div class="p-btn" onclick="activatePower('boost')">🚀<small id="bCount">0</small></div>
+            </div>
+        </div>
+        <div class="controls">
+            <div style="grid-column:2" class="ctrl-btn" ontouchstart="startMove('up')" ontouchend="stopMove()">↑</div>
+            <div style="grid-column:1" class="ctrl-btn" ontouchstart="startMove('left')" ontouchend="stopMove()">←</div>
+            <div style="grid-column:2" class="ctrl-btn" ontouchstart="startMove('down')" ontouchend="stopMove()">↓</div>
+            <div style="grid-column:3" class="ctrl-btn" ontouchstart="startMove('right')" ontouchend="stopMove()">→</div>
+        </div>
+    </div>
+
+    <div id="postGame" style="display:none;">
+        <h2 id="resultMsg">Result</h2>
+        <p>Points Earned: <span id="earnedPts" style="color:var(--success)">0</span></p>
+        <button class="btn-main" onclick="showPage('gamePage')">Play Again</button><br>
+        <button class="btn-main" style="background:#444" onclick="showPage('homePage')">Back to Home</button>
+    </div>
+</div>
+
+<div id="powerupPage" class="page">
+    <h2>🔋 Powerup Lab</h2>
+    <p>Available Points: <b class="total-pts" style="color:var(--success)">0</b></p>
+    
+    <div class="card">
+        <h3>🛡️ Shield</h3>
+        <p>Duration: <span id="sDur">5.0</span>s | Stock: <span id="sOwn">0</span></p>
+        <button class="btn-main" onclick="buyItem('shield')">Buy (499 pts)</button>
+        <button class="btn-main" style="background:var(--secondary)" onclick="upgradeItem('shield')">Upgrade (250 pts) <br><small id="sLvl">0/15</small></button>
+    </div>
+
+    <div class="card">
+        <h3>🚀 Speed Boost</h3>
+        <p>Duration: <span id="bDur">5.0</span>s | Stock: <span id="bOwn">0</span></p>
+        <button class="btn-main" onclick="buyItem('boost')">Buy (999 pts)</button>
+        <button class="btn-main" style="background:var(--secondary)" onclick="upgradeItem('boost')">Upgrade (500 pts) <br><small id="bLvl">0/15</small></button>
+    </div>
+    <p id="shopMsg" style="color:var(--primary); height: 20px;"></p>
+</div>
+
+<div id="leaderboardPage" class="page">
+    <h2>Pilot Leaderboard</h2>
+    <div class="card">
+        <table>
+            <thead><tr><th>Rank</th><th>Pilot</th><th>Top Score</th><th>Wallet</th></tr></thead>
+            <tbody id="leaderboardBody"></tbody>
+        </table>
+    </div>
+</div>
+
+<div id="accountPage" class="page">
+    <h2>Pilot Credentials</h2>
+    <div class="card" id="profileData" style="text-align: left; line-height: 2;"></div>
+    <button class="btn-main" style="background:var(--danger)" onclick="location.reload()">Log Out</button>
+</div>
+
+<script>
+    // --- GLOBAL STATE ---
+    let currentUser = null;
+    let gameActive = false, mode = 'solo', diff = 'easy';
+    let keys = {}, items = [], stars = [];
+    let activeShield = false, activeBoost = false;
+    let currentSessionScore = 0;
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function playSound(f, t, d) {
+        const o = audioCtx.createOscillator(); const g = audioCtx.createGain();
+        o.type = t; o.frequency.setValueAtTime(f, audioCtx.currentTime);
+        g.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + d);
+        o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime + d);
+    }
+
+    // --- AUTHENTICATION ---
+    function toggleAuthMode() {
+        const isLog = document.getElementById('authTitle').innerText === 'Login';
+        document.getElementById('authTitle').innerText = isLog ? 'Register' : 'Login';
+        document.getElementById('userAge').style.display = isLog ? 'block' : 'none';
+        document.getElementById('toggleLink').innerText = isLog ? 'Already a pilot? Login' : 'New Pilot? Register';
+    }
+
+    function handleAuth() {
+        const u = document.getElementById('username').value.trim();
+        const p = document.getElementById('password').value.trim();
+        const a = document.getElementById('userAge').value;
+        if(!u || !p) return alert("Enter credentials");
+        
+        let users = JSON.parse(localStorage.getItem('nebula_v2_users') || '[]');
+
+        if(document.getElementById('authTitle').innerText === 'Login') {
+            const found = users.find(x => x.username === u && x.password === p);
+            if(found) { currentUser = found; loginSuccess(); }
+            else alert("Invalid Login");
+        } else {
+            if(users.find(x => x.username === u)) return alert("Username taken");
+            if(!a) return alert("Age required for registration");
+            users.push({username: u, password: p, age: a, highScore: 0, totalPoints: 0, shieldStock: 0, boostStock: 0, sLvl: 0, bLvl: 0});
+            localStorage.setItem('nebula_v2_users', JSON.stringify(users));
+            alert("Registration Complete!"); toggleAuthMode();
+        }
+    }
+
+    function loginSuccess() {
+        document.getElementById('navbar').style.display = 'flex';
+        updateUI();
+        showPage('homePage');
+    }
+
+    function showPage(id) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        updateUI();
+        if(id === 'leaderboardPage') updateRankings();
+        if(id === 'gamePage') { 
+            document.getElementById('gameMenu').style.display='block'; 
+            document.getElementById('gamePlayArea').style.display='none';
+            document.getElementById('postGame').style.display='none';
+        }
+    }
+
+    function updateUI() {
+        if(!currentUser) return;
+        document.querySelectorAll('.total-pts').forEach(e => e.innerText = currentUser.totalPoints);
+        document.getElementById('sOwn').innerText = currentUser.shieldStock;
+        document.getElementById('bOwn').innerText = currentUser.boostStock;
+        document.getElementById('sCount').innerText = currentUser.shieldStock;
+        document.getElementById('bCount').innerText = currentUser.boostStock;
+        document.getElementById('sDur').innerText = (5 + currentUser.sLvl * 0.1).toFixed(1);
+        document.getElementById('bDur').innerText = (5 + currentUser.bLvl * 0.1).toFixed(1);
+        document.getElementById('sLvl').innerText = `${currentUser.sLvl}/15`;
+        document.getElementById('bLvl').innerText = `${currentUser.bLvl}/15`;
+
+        document.getElementById('profileData').innerHTML = `
+            <b>Pilot Identity:</b> ${currentUser.username}<br>
+            <b>Pilot Age:</b> ${currentUser.age}<br>
+            <b>Personal Best:</b> ${currentUser.highScore} Orbs<br>
+            <b>Galactic Credits:</b> ${currentUser.totalPoints} pts<br>
+            <b>Password:</b> <span style="letter-spacing: 2px;">******</span>
+        `;
+    }
+
+    function saveUser() {
+        let users = JSON.parse(localStorage.getItem('nebula_v2_users'));
+        let idx = users.findIndex(u => u.username === currentUser.username);
+        users[idx] = currentUser;
+        localStorage.setItem('nebula_v2_users', JSON.stringify(users));
+        updateUI();
+    }
+
+    // --- SHOP ---
+    function buyItem(type) {
+        let cost = type === 'shield' ? 499 : 999;
+        if(currentUser.totalPoints >= cost) {
+            currentUser.totalPoints -= cost;
+            currentUser[type + 'Stock']++;
+            playSound(800, 'sine', 0.2);
+            document.getElementById('shopMsg').innerText = `Purchased ${type.toUpperCase()}!`;
+            saveUser();
+        } else alert("Insufficient Points!");
+    }
+
+    function upgradeItem(type) {
+        let cost = type === 'shield' ? 250 : 500;
+        let lvlKey = type === 'shield' ? 'sLvl' : 'bLvl';
+        if(currentUser[lvlKey] >= 15) return alert("System Maxed!");
+        if(currentUser.totalPoints >= cost) {
+            currentUser.totalPoints -= cost;
+            currentUser[lvlKey]++;
+            playSound(1200, 'sine', 0.3);
+            let t = (5 + currentUser[lvlKey] * 0.1).toFixed(1);
+            document.getElementById('shopMsg').innerText = `${type} Upgraded to ${t}s!`;
+            saveUser();
+        } else alert("Insufficient Points!");
+    }
+
+    // --- GAME ENGINE ---
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    let pObj = { x: 150, y: 350 };
+    let cObj = { x: 50, y: 350 };
+    let pScore = 0, cScore = 0;
+
+    for(let i=0; i<40; i++) stars.push({x:Math.random()*320, y:Math.random()*400, s:Math.random()*2});
+
+    function setupGame(m, d) {
+        mode = m; diff = d;
+        pObj = { x: 150, y: 350 };
+        cObj = { x: 50, y: 350 };
+        pScore = 0; cScore = 0; items = [];
+        activeShield = false; activeBoost = false;
+        document.getElementById('gameMenu').style.display='none';
+        document.getElementById('gamePlayArea').style.display='block';
+        document.getElementById('aiContainer').style.display = mode==='vs'?'inline':'none';
+        gameActive = true; 
+        updateScoreboard();
+        spawnLogic();
+        gameLoop();
+    }
+
+    function updateScoreboard() {
+        document.getElementById('pScore').innerText = pScore;
+        document.getElementById('cScore').innerText = cScore;
+    }
+
+    function spawnLogic() {
+        if(!gameActive) return;
+        let speedMult = 1;
+        if(mode === 'solo') {
+            speedMult = diff === 'easy' ? 0.8 : (diff === 'medium' ? 1.2 : 1.8);
+        }
+        items.push({ 
+            x: Math.random()*290, 
+            y: -20, 
+            type: Math.random()>0.35?'point':'enemy',
+            speed: (2 + Math.random()*2) * speedMult
+        });
+        setTimeout(spawnLogic, mode==='solo'? 700 : 1200);
+    }
+
+    function startMove(d) { keys[d] = true; }
+    function stopMove() { keys = {}; }
+    
+    // Desktop Keys
+    window.onkeydown = e => { 
+        if(e.key==='ArrowUp') keys.up=true; if(e.key==='ArrowDown') keys.down=true;
+        if(e.key==='ArrowLeft') keys.left=true; if(e.key==='ArrowRight') keys.right=true;
+    };
+    window.onkeyup = e => keys = {};
+
+    function activatePower(type) {
+        if(!gameActive) return;
+        if(type === 'shield' && currentUser.shieldStock > 0 && !activeShield) {
+            currentUser.shieldStock--; activeShield = true;
+            playSound(1000, 'sine', 0.1);
+            setTimeout(() => activeShield = false, (5 + currentUser.sLvl * 0.1) * 1000);
+        }
+        if(type === 'boost' && currentUser.boostStock > 0 && !activeBoost) {
+            currentUser.boostStock--; activeBoost = true;
+            playSound(1200, 'sine', 0.1);
+            setTimeout(() => activeBoost = false, (5 + currentUser.bLvl * 0.1) * 1000);
+        }
+        saveUser();
+    }
+
+    function update() {
+        let pSpeed = activeBoost ? 7 : 4;
+        if(keys.up && pObj.y > 0) pObj.y -= pSpeed;
+        if(keys.down && pObj.y < 380) pObj.y += pSpeed;
+        if(keys.left && pObj.x > 0) pObj.x -= pSpeed;
+        if(keys.right && pObj.x < 300) pObj.x += pSpeed;
+
+        // Balanced AI Logic
+        if(mode === 'vs') {
+            let target = items.find(i => i.type === 'point');
+            if(target) {
+                // Adjusting AI speed based on difficulty request (making them easier)
+                let s = diff==='easy'? 0.8 : (diff==='medium'? 1.5 : 2.2);
+                if(cObj.x < target.x) cObj.x += s; else cObj.x -= s;
+                if(cObj.y < target.y) cObj.y += s; else cObj.y -= s;
+            }
+        }
+
+        stars.forEach(s => { s.y += 1.5; if(s.y > 400) s.y = 0; });
+
+        items.forEach((it, i) => {
+            it.y += it.speed;
+            // Player collision
+            if(Math.hypot(pObj.x-it.x, pObj.y-it.y) < 22) {
+                if(it.type === 'point') { 
+                    pScore++; 
+                    playSound(500, 'sine', 0.05); 
+                    items.splice(i,1); 
+                    updateScoreboard();
+                } else {
+                    if(!activeShield) endGame('lose');
+                    else { items.splice(i,1); playSound(200, 'square', 0.1); }
+                }
+            }
+            // AI collision
+            if(mode==='vs' && Math.hypot(cObj.x-it.x, cObj.y-it.y) < 22) {
+                if(it.type==='point') { 
+                    cScore++; 
+                    items.splice(i,1); 
+                    updateScoreboard();
+                }
+            }
+            if(it.y > 420) items.splice(i, 1);
+        });
+
+        if(mode==='vs') {
+            if(pScore >= 10) endGame('win');
+            if(cScore >= 10) endGame('lose');
+        }
+    }
+
+    function draw() {
+        ctx.clearRect(0,0,320,400);
+        ctx.fillStyle="white"; 
+        stars.forEach(s=>ctx.fillRect(s.x, s.y, s.s, s.s));
+
+        // Player Ship
+        ctx.shadowBlur = activeShield ? 15 : 0;
+        ctx.shadowColor = varColor('--primary');
+        ctx.fillStyle = activeShield ? '#fff' : varColor('--primary');
+        ctx.fillRect(pObj.x, pObj.y, 20, 20);
+        ctx.shadowBlur = 0;
+
+        if(mode==='vs') { 
+            ctx.fillStyle=varColor('--secondary'); 
+            ctx.fillRect(cObj.x, cObj.y, 20, 20); 
+        }
+
+        // Collectibles
+        items.forEach(it => {
+            ctx.fillStyle = it.type==='point'? varColor('--success') : varColor('--danger');
+            ctx.beginPath(); ctx.arc(it.x+10, it.y+10, 8, 0, 7); ctx.fill();
+            if(it.type === 'point') {
+                ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.stroke();
+            }
+        });
+    }
+
+    function varColor(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+
+    function gameLoop() {
+        if(!gameActive) return;
+        update(); draw(); requestAnimationFrame(gameLoop);
+    }
+
+    function endGame(res) {
+        gameActive = false;
+        document.getElementById('gamePlayArea').style.display='none';
+        document.getElementById('postGame').style.display='block';
+        document.getElementById('resultMsg').innerText = res === 'win' ? "MISSION SUCCESS" : "MISSION FAILED";
+        
+        // Fix for points adding
+        let pointsToAward = pScore;
+        document.getElementById('earnedPts').innerText = pointsToAward;
+        
+        currentUser.totalPoints = Number(currentUser.totalPoints) + pointsToAward;
+        if(pScore > currentUser.highScore) currentUser.highScore = pScore;
+        
+        saveUser();
+        playSound(res==='win'?600:150, 'square', 0.5);
+    }
+
+    function updateRankings() {
+        let users = JSON.parse(localStorage.getItem('nebula_v2_users') || '[]');
+        users.sort((a,b) => b.highScore - a.highScore);
+        document.getElementById('leaderboardBody').innerHTML = users.map((u, i) => 
+            `<tr><td>${i+1}</td><td>${u.username}</td><td>${u.highScore}</td><td>${u.totalPoints}</td></tr>`
+        ).join('');
+    }
+</script>
+</body>
+</html>
