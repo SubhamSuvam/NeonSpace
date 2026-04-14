@@ -1,0 +1,81 @@
+#Neon Nebula:
+
+Hello I am Subham and I have created an arcade-style space collection game with RPG elements, power-ups, and AI opponents. Built with HTML, CSS, and JavaScript.
+
+#Features:
+
+1. Dual Game Modes
+  - Solo Mode: Survive and collect as many points as possible
+  - VS Comouter Mode: Race against computer opponents to reach 10 points first
+
+2. Difficulty Levels
+  - Easy, Medium, and Hard challenges for both game modes
+
+3. Persistent Progression System
+  - User accounts with local storage
+  - Earn galactic credits by playing
+  - Purchase and upgrade power-ups
+
+4. Power-Up System
+  - Shield: Temporary invincibility (upgradable duration)
+  - Speed Boost: Increased movement speed (upgradable duration)
+  - Each power-up can be upgraded to level 15
+
+5. Leaderboard
+  - Track high scores across all players
+  - Compare wallet balances
+
+6. Responsive Controls
+  - Keyboard support (Arrow Keys)
+  - Touch-friendly on-screen buttons for mobile devices
+
+#How to Play
+
+1. Create an Account - Register with username, age, and password
+2. Earn Points - Collect green orbs, avoid red asteroids
+3. Upgrade - Use points to buy and upgrade power-ups
+4. Compete - Try to beat your high score or challenge the AI
+
+#Controls
+
+| Action | Keyboard | Touch/Mobile |
+|--------|----------|---------------|
+| Move Up | ↑ Arrow | On-screen ↑ button |
+| Move Down | ↓ Arrow | On-screen ↓ button |
+| Move Left | ← Arrow | On-screen ← button |
+| Move Right | → Arrow | On-screen → button |
+| Shield | Click power-up icon | Tap shield button |
+| Speed Boost | Click power-up icon | Tap boost button |
+
+#Scoring System
+
+1. Green Orbs: +1 point each
+2. Red Asteroids: Game over (unless shield is active)
+3. VS Computer Mode: First to 10 points wins
+
+#Point Rewards
+- Each collected orb = 1 galactic credit
+- Points can be spent in the Power-up Lab
+
+#Technical Details
+
+#Built With
+- HTML5 Canvas for game rendering
+- CSS3 with animations and glassmorphism effects
+- Vanilla JavaScript (no external dependencies)
+- Local Storage for data persistence
+- Web Audio API for sound effects
+
+#Data Structure
+javascript
+User Object {
+  username: string,
+  password: string,
+  age: number,
+  highScore: number,
+  totalPoints: number,
+  shieldStock: number,
+  boostStock: number,
+  sLvl: number (0-15),
+  bLvl: number (0-15)
+}
