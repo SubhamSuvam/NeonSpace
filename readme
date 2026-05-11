@@ -1,8 +1,8 @@
-#Neon Nebula:
+# Neon Nebula:
 
 Hello I am Subham and I have created an arcade-style space collection game with RPG elements, power-ups, and AI opponents. Built with HTML, CSS, and JavaScript.
 
-#Features:
+# Features:
 
 1. Dual Game Modes
   - Solo Mode: Survive and collect as many points as possible
@@ -29,14 +29,14 @@ Hello I am Subham and I have created an arcade-style space collection game with 
   - Keyboard support (Arrow Keys)
   - Touch-friendly on-screen buttons for mobile devices
 
-#How to Play
+# How to Play
 
 1. Create an Account - Register with username, age, and password
 2. Earn Points - Collect green orbs, avoid red asteroids
 3. Upgrade - Use points to buy and upgrade power-ups
 4. Compete - Try to beat your high score or challenge the AI
 
-#Controls
+# Controls
 
 | Action | Keyboard | Touch/Mobile |
 |--------|----------|---------------|
@@ -47,26 +47,26 @@ Hello I am Subham and I have created an arcade-style space collection game with 
 | Shield | Click power-up icon | Tap shield button |
 | Speed Boost | Click power-up icon | Tap boost button |
 
-#Scoring System
+# Scoring System
 
 1. Green Orbs: +1 point each
 2. Red Asteroids: Game over (unless shield is active)
 3. VS Computer Mode: First to 10 points wins
 
-#Point Rewards
+# Point Rewards
 - Each collected orb = 1 galactic credit
 - Points can be spent in the Power-up Lab
 
-#Technical Details
+# Technical Details
 
-#Built With
+# Built With
 - HTML5 Canvas for game rendering
 - CSS3 with animations and glassmorphism effects
 - Vanilla JavaScript (no external dependencies)
 - Local Storage for data persistence
 - Web Audio API for sound effects
 
-#Data Structure
+# Data Structure
 javascript
 User Object {
   username: string,
@@ -79,3 +79,5 @@ User Object {
   sLvl: number (0-15),
   bLvl: number (0-15)
 }
+
+# _____________END__________
